@@ -52,27 +52,66 @@ RSpec.describe 'Users', type: :system do
   end
 end
   describe 'ログイン後' do
+    before {login_as user}
     describe 'ユーザー編集' do
       context 'フォームの入力値が正常' do
-        it 'ユーザーの編集が成功する'
+        it 'ユーザーの編集が成功する' do
+          visit edit_user_path(user)
+          fill_in 'Email', with: 'a@example.com'
+          fill_in 'Password', with: 'password'
+          fill_in 'Password confirmation', with: 'password'
+          click_button 'Update'
+          expect(page).to have_content 'User was successfully updated.'
+          expect(current_path).to eq user_path(user)
+        end
       end
       context 'メールアドレスが未入力' do
-        it 'ユーザーの編集が失敗する'
+        it 'ユーザーの編集が失敗する' do
+          visit edit_user_path(user)
+          fill_in 'Email', with: ''
+          fill_in 'Password', with: 'password'
+          fill_in 'Password confirmation', with: 'password'
+          click_button 'Update'
+          expect(page).to have_content '1 error prohibited this user from being saved'
+          expect(page).to have_content "Email can't be blank"
+          expect(current_path).to eq user_path(user)
+      end
       end
       context '登録済のメールアドレスを使用' do
-        it 'ユーザーの編集が失敗する'
+        it 'ユーザーの編集が失敗する' do
+          visit edit_user_path(user)
+          another_user = create(:user)
+          fill_in 'Email', with: another_user.email
+          fill_in 'Password', with: 'password'
+          fill_in 'Password confirmation', with: 'password'
+          click_button 'Update'
+          expect(page).to have_content '1 error prohibited this user from being saved'
+          expect(page).to have_content 'Email has already been taken'
+          expect(current_path).to eq user_path(user)
+        end
       end
       context '他ユーザーの編集ページにアクセス' do
-        it '編集ページへのアクセスが失敗する'
-      end
-    end
-
-    describe 'マイページ' do
-      context 'タスクを作成' do
-        it '新規作成したタスクが表示される' do
+        it '編集ページへのアクセスが失敗する' do
+          another_user = create(:user)
+          visit edit_user_path(another_user)
+          expect(page).to have_content 'Forbidden access.'
+          expect(current_path).to eq user_path(user)
       end
     end
   end
-end
+    describe 'マイページ' do
+      context 'タスクを作成' do
+        it '新規作成したタスクが表示される' do
+        create(:task, title: 'test', status: 'todo', user: user)
+        visit user_path(user)
+        expect(page).to have_content 'test'
+        expect(page).to have_content 'todo'
+        expect(page).to have_link 'Show'
+        expect(page).to have_link 'Edit'
+        expect(page).to have_link 'Destroy'
+      end
+    end
+  end
+ end
 end
 end
