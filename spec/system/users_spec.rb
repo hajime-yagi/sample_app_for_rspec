@@ -5,7 +5,7 @@ RSpec.describe 'Users', type: :system do
     describe 'ユーザー新規登録' do
       context 'フォームの入力値が正常' do
         it 'ユーザーの新規作成が成功する'
-        visit new_user_path
+        visit sign_up_path
         fill_in 'Email', with: 'a@example.com'
         fill_in 'Password', with: 'foobar'
         fill_in 'Password confirmation', with: 'foobar'
