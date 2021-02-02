@@ -28,7 +28,12 @@ end
    end
    context 'タスク一覧ページにアクセス' do
     it '一覧ページへのアクセスに成功すること' do
-
+    task_list = create_list(:task,3)
+    visit tasks_path
+    expect(page).to have_content task_list[0].title
+    expect(page).to have_content task_list[1].title
+    expect(page).to have_content task_list[2].title
+    expect(current_path).to eq tasks_path
     end
    end
   end 
