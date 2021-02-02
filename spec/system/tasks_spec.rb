@@ -38,17 +38,38 @@ end
    end
   end 
 end
-end
+
 
 describe 'ログイン後' do
-  before { login_as user }
+  let(:user){ create(:user) }
+  let(:task){ create(:task) }
+  before {login_as user}
   describe 'タスク新規登録' do
     context '入力が正常' do
       it 'タスク新規登録が成功すること' do
+        visit new_task_path
+        fill_in 'Title', with: 'タイトル'
+        fill_in 'Content', with: '内容'
+        select 'todo', from: status
+        fill_in 'Deadline', with: DateTime.new(2021,2,2,15,52)
+        click_button 'Create Task'
+        expect(page).to have_content 'Task was successfully created.'
+        expect(page).to have_content  'タイトル'
+        expect(page).to have_content  '内容'
+        expect(page).to have_content  'todo'
+        expect(page).to have_content '2021/2/2 15:52'
+        expect(current_path).to eq '/tasks/1'
+      
       end
     end
     context '登録済みタスクタイトルを入力' do
       it 'タスク登録に失敗すること' do
+        create(:task)
+        visit new_task_path
+        fill_in 'Title',with: task.title
+        fill_in 'Content', with: '内容'
+        select 'todo',from: status
+
       end
      end
 
@@ -74,6 +95,6 @@ describe 'タスク削除' do
   end
 end
 end
-
+end
 
     
