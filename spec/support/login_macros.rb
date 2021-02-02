@@ -6,4 +6,9 @@ module LoginSupport
     fill_in 'Password', with: 'password'
     click_button 'Login'
   end
+
+  def logout(user)
+    visit root_path
+    click_link 'Logout'
+  end
 end
